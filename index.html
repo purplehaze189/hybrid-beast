@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090b0e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hybrid Beast">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<title>Hybrid Beast Command Center</title>
+<style>
+:root{
+  --bg:#090b0e;--panel:#14181d;--panel2:#1b2128;--text:#f7f9fb;--muted:#98a3ae;
+  --line:#29323b;--scarlet:#d71920;--scarlet2:#ff5358;--green:#b7ff39;--good:#48d17d;
+  --blue:#4eb8ff;--gold:#ffc857;--bad:#ff6b6b
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 12% -5%,rgba(215,25,32,.20),transparent 27%),
+    radial-gradient(circle at 92% 10%,rgba(183,255,57,.07),transparent 22%),
+    var(--bg)
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.wrap{max-width:1480px;margin:auto;padding:20px;padding-top:max(20px,env(safe-area-inset-top));padding-bottom:max(92px,calc(env(safe-area-inset-bottom) + 78px))}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.brand h1{margin:0;font-size:clamp(26px,4vw,42px);letter-spacing:.4px}
+.brand p{margin:6px 0 0;color:var(--muted)}
+.phase{padding:9px 13px;border:1px solid rgba(183,255,57,.28);border-radius:999px;color:var(--green);font-weight:850;background:rgba(183,255,57,.06)}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 18px}
+.nav button{border:1px solid var(--line);background:#11151a;color:var(--muted);padding:9px 13px;border-radius:999px;font-weight:800}
+.nav button.active{background:var(--scarlet);color:white;border-color:var(--scarlet)}
+.page{display:none}.page.active{display:block}
+.grid{display:grid;gap:14px}.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.two{grid-template-columns:1fr 1fr}.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.card{background:linear-gradient(180deg,rgba(27,33,40,.98),rgba(17,21,26,.98));border:1px solid var(--line);border-radius:18px;padding:17px;box-shadow:0 10px 28px rgba(0,0,0,.22)}
+.card h2,.card h3{margin:0 0 10px}.muted{color:var(--muted)}.small{font-size:12px;color:var(--muted)}
+.kpi{cursor:pointer;transition:.18s transform,.18s border-color,.18s box-shadow;position:relative;min-height:148px}
+.kpi:hover{transform:translateY(-2px);border-color:#46515d;box-shadow:0 14px 32px rgba(0,0,0,.3)}
+.kpi:after{content:"Click for details";position:absolute;right:15px;bottom:12px;color:#697480;font-size:11px}
+.kpi .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}.kpi .value{font-size:clamp(27px,3vw,38px);font-weight:900;margin-top:4px}.kpi .sub{font-size:12px;color:var(--muted);margin-top:3px;max-width:90%}
+.progress{height:8px;border-radius:999px;background:#222931;overflow:hidden;margin-top:12px;border:1px solid #2b343d}.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--scarlet),var(--scarlet2))}.progress.green span{background:linear-gradient(90deg,#62d979,var(--green))}.progress.blue span{background:linear-gradient(90deg,#267cff,var(--blue))}.progress.gold span{background:linear-gradient(90deg,#ff9f43,var(--gold))}
+.statusrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.pill{font-size:11px;font-weight:800;padding:5px 8px;border-radius:999px;border:1px solid #35404b;background:#20262d;color:#cbd3da}.pill.good{background:rgba(72,209,125,.1);border-color:rgba(72,209,125,.35);color:#8ff0ae}.pill.warn{background:rgba(255,200,87,.1);border-color:rgba(255,200,87,.35);color:#ffd97d}.pill.bad{background:rgba(255,107,107,.1);border-color:rgba(255,107,107,.35);color:#ff9a9a}.pill.blue{background:rgba(78,184,255,.1);border-color:rgba(78,184,255,.35);color:#93d5ff}
+.section-title{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}
+.quote{padding:13px 15px;border-left:4px solid var(--scarlet);background:#0f1317;border-radius:10px;font-weight:850}
+.formgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.formgrid.threecol{grid-template-columns:repeat(3,minmax(0,1fr))}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}
+input,select,textarea{width:100%;background:#0d1115;color:var(--text);border:1px solid #313b46;border-radius:10px;padding:9px 10px;outline:none}input:focus,select:focus,textarea:focus{border-color:#596775}textarea{min-height:74px;resize:vertical}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.btn{border:1px solid #35404a;background:#171c22;color:white;border-radius:10px;padding:9px 12px;font-weight:850}.btn.primary{background:var(--scarlet);border-color:var(--scarlet)}.btn.green{background:#294719;border-color:#4f7428;color:#d8ffad}.btn.ghost{background:transparent}.btn.danger{background:#3a1719;border-color:#6e292d;color:#ffb5b5}
+.quick{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.quick .mini{background:#10151a;border:1px solid #27313a;border-radius:13px;padding:12px}.quick .mini b{display:block;font-size:20px;margin-top:3px}
+table{width:100%;border-collapse:collapse}th,td{padding:9px 7px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;vertical-align:top}th{color:var(--muted);font-weight:750;position:sticky;top:0;background:#151a20}.tablewrap{overflow:auto;max-height:520px;border:1px solid #26303a;border-radius:12px}
+canvas{width:100%;height:230px;background:#0d1115;border:1px solid #26303a;border-radius:12px}
+.insight{border:1px solid #29323b;background:#101419;border-radius:12px;padding:12px;margin-top:10px}.insight strong{color:var(--green)}
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}.tabs button{border:1px solid #313b45;background:#101419;color:var(--muted);border-radius:9px;padding:8px 10px;font-weight:800}.tabs button.active{background:#262d35;color:white}
+.day{display:grid;grid-template-columns:75px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.day:last-child{border-bottom:0}.dayname{font-weight:900}
+.check{width:23px;height:23px;border-radius:7px;border:1px solid #3c4651;background:#0d1115;display:grid;place-items:center;cursor:pointer}.check.done{background:var(--good);color:#08150d;border-color:var(--good)}
+.modalback{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:20;display:none;align-items:flex-start;justify-content:center;padding:4vh 14px;overflow:auto}.modalback.open{display:flex}.modal{width:min(1050px,100%);background:#11161b;border:1px solid #303a44;border-radius:20px;box-shadow:0 28px 90px rgba(0,0,0,.55);padding:18px}.modalhead{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px}.modalhead h2{margin:0}.close{border:1px solid #39434e;background:#1a2026;color:white;border-radius:10px;padding:8px 11px;font-weight:900}
+.modalmetrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}.modalmetric{border:1px solid #29333c;background:#0e1216;border-radius:12px;padding:11px}.modalmetric .v{font-size:22px;font-weight:900}.modalmetric .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.logtype{font-size:11px;font-weight:900;padding:4px 7px;border-radius:999px;background:#262d35}.logtype.run{color:#9bd8ff}.logtype.strength{color:#ff9b9f}.logtype.daily{color:#cfff8b}.logtype.jump{color:#ffd980}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+hr{border:0;border-top:1px solid var(--line);margin:15px 0}
+.footer{font-size:11px;color:#65717c;text-align:center;padding:22px 0 6px}
+@media(max-width:1050px){.kpis{grid-template-columns:repeat(2,1fr)}.three{grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:720px){.wrap{padding:13px}.kpis,.two,.three,.quick,.modalmetrics,.formgrid,.formgrid.threecol{grid-template-columns:1fr}.kpi{min-height:135px}.day{grid-template-columns:60px 1fr auto}}
+
+@media(max-width:720px){
+  body{overscroll-behavior-y:none}
+  .topbar{margin-bottom:10px}
+  .brand h1{font-size:26px}
+  .brand p{font-size:12px}
+  .nav{
+    position:fixed;left:10px;right:10px;bottom:max(10px,env(safe-area-inset-bottom));
+    z-index:15;margin:0;padding:7px;background:rgba(14,18,22,.96);backdrop-filter:blur(16px);
+    border:1px solid #303a44;border-radius:17px;box-shadow:0 14px 42px rgba(0,0,0,.45);
+    display:grid;grid-template-columns:repeat(4,1fr);gap:6px
+  }
+  .nav button{padding:9px 6px;font-size:11px;border-radius:11px;white-space:nowrap}
+  .card{padding:14px;border-radius:15px}
+  .kpi .value{font-size:30px}
+  input,select,textarea{font-size:16px}
+  .modalback{padding:env(safe-area-inset-top) 8px env(safe-area-inset-bottom)}
+  .modal{border-radius:16px;padding:14px}
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand"><h1>HYBRID BEAST COMMAND CENTER</h1><p>Body by Marotti • Strength × Sub-6 × Explosiveness × Physique</p></div>
+    <div class="phase" id="phaseBadge">RESET + BUILD</div>
+  </div>
+
+  <div class="nav">
+    <button class="active" data-page="dashboard">Dashboard</button>
+    <button data-page="log">Log Today</button>
+    <button data-page="logbook">Logbook</button>
+    <button data-page="settings">Goals & Backup</button>
+  </div>
+
+  <section id="dashboard" class="page active">
+    <div class="grid kpis">
+      <div class="card kpi" onclick="openKPI('weight')">
+        <div class="label">Bodyweight</div><div class="value" id="kWeight">—</div><div class="sub" id="kWeightSub">Loading trend…</div><div class="progress"><span id="kWeightBar"></span></div>
+      </div>
+      <div class="card kpi" onclick="openKPI('bench')">
+        <div class="label">Bench</div><div class="value" id="kBench">—</div><div class="sub" id="kBenchSub">Road back to 405</div><div class="progress green"><span id="kBenchBar"></span></div>
+      </div>
+      <div class="card kpi" onclick="openKPI('mile')">
+        <div class="label">Best Mile</div><div class="value" id="kMile">—</div><div class="sub" id="kMileSub">Goal 5:59</div><div class="progress blue"><span id="kMileBar"></span></div>
+      </div>
+      <div class="card kpi" onclick="openKPI('readiness')">
+        <div class="label">Readiness</div><div class="value" id="kReady">—</div><div class="sub" id="kReadySub">Log sleep, energy & soreness</div><div class="progress gold"><span id="kReadyBar"></span></div>
+      </div>
+      <div class="card kpi" onclick="openKPI('nutrition')">
+        <div class="label">Nutrition</div><div class="value" id="kNutrition">—</div><div class="sub" id="kNutritionSub">7-day intake & protein</div><div class="progress green"><span id="kNutritionBar"></span></div>
+      </div>
+      <div class="card kpi" onclick="openKPI('activity')">
+        <div class="label">Activity</div><div class="value" id="kActivity">—</div><div class="sub" id="kActivitySub">7-day step average</div><div class="progress blue"><span id="kActivityBar"></span></div>
+      </div>
+      <div class="card kpi" onclick="openKPI('recovery')">
+        <div class="label">Recovery</div><div class="value" id="kRecovery">—</div><div class="sub" id="kRecoverySub">Sleep + energy + soreness</div><div class="progress gold"><span id="kRecoveryBar"></span></div>
+      </div>
+      <div class="card kpi" onclick="openKPI('explosive')">
+        <div class="label">Explosiveness</div><div class="value" id="kExplosive">BASELINE</div><div class="sub" id="kExplosiveSub">Log vertical, broad jump or 10 yd</div><div class="progress"><span id="kExplosiveBar" style="width:8%"></span></div>
+      </div>
+    </div>
+
+    <div class="grid two" style="margin-top:14px">
+      <div class="card">
+        <div class="section-title"><h2>Today’s Cockpit</h2><span class="pill blue" id="todayDatePill"></span></div>
+        <div class="quick">
+          <div class="mini"><span class="small">Weight</span><b id="todayWeight">—</b></div>
+          <div class="mini"><span class="small">Calories</span><b id="todayCalories">—</b></div>
+          <div class="mini"><span class="small">Protein</span><b id="todayProtein">—</b></div>
+          <div class="mini"><span class="small">Steps</span><b id="todaySteps">—</b></div>
+        </div>
+        <div id="todayInsight" class="insight"></div>
+      </div>
+      <div class="card">
+        <h2>Current Coaching Priorities</h2>
+        <div class="quote">“Slaughter season doesn’t mean reckless. It means relentless execution.”</div>
+        <div class="statusrow">
+          <span class="pill good">Strength: HOLD / BUILD</span>
+          <span class="pill blue">Running: SUB-6</span>
+          <span class="pill warn">Nutrition: CONSISTENCY</span>
+          <span class="pill good">Activity: HIGH</span>
+        </div>
+        <ul>
+          <li>Protein floor: <strong>185–200 g/day</strong>.</li>
+          <li>Reset calories: usually <strong>2,000–2,200</strong>; do not eat back watch calories automatically.</li>
+          <li>Office meals: protein first, one normal plate, water, resume plan next meal.</li>
+          <li>PPL stays because it is simple and executable during school + Nationwide.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid two" style="margin-top:14px">
+      <div class="card">
+        <div class="section-title"><h2>7-Day Weight Trend</h2><span class="pill" id="avgWeightPill">—</span></div>
+        <canvas id="weightChart" width="1000" height="230"></canvas>
+      </div>
+      <div class="card">
+        <div class="section-title"><h2>Sub-6 Progress</h2><span class="pill blue">10.0 mph = 6:00/mi</span></div>
+        <table>
+          <tbody>
+            <tr><td>Best recorded mile</td><td><strong id="mileBestDetail">—</strong></td></tr>
+            <tr><td>Gap to 5:59</td><td><strong id="mileGapDetail">—</strong></td></tr>
+            <tr><td>Recent aerobic base</td><td><strong>5.00 mi • 43:20 • 8:41/mi • HR 142</strong></td></tr>
+            <tr><td>Training structure</td><td>Run A Speed / Run B Threshold / Run C Mile-Specific</td></tr>
+          </tbody>
+        </table>
+        <div class="insight"><strong>Coach insight:</strong> Build the ability to own 10.0 mph longer. Don’t turn every threshold day into a mile test.</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="section-title"><h2>Recent Log</h2><button class="btn ghost" onclick="showPage('logbook')">Open full logbook</button></div>
+      <div class="tablewrap" style="max-height:340px"><table><thead><tr><th>Date</th><th>Type</th><th>Summary</th></tr></thead><tbody id="recentLog"></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="log" class="page">
+    <div class="card">
+      <div class="section-title"><h2>Daily Operating Log</h2><span class="pill good">This is the main input system</span></div>
+      <div class="tabs">
+        <button class="active" data-logtab="daily">Daily Check-In</button>
+        <button data-logtab="strength">Strength</button>
+        <button data-logtab="run">Run</button>
+        <button data-logtab="explosive">Explosive Test</button>
+      </div>
+
+      <div id="log-daily" class="logpane">
+        <div class="formgrid">
+          <div class="field"><label>Date</label><input id="dDate" type="date"></div>
+          <div class="field"><label>Morning weight (lb)</label><input id="dWeight" type="number" step="0.1" placeholder="e.g. 176.8"></div>
+          <div class="field"><label>Waist (in)</label><input id="dWaist" type="number" step="0.1"></div>
+          <div class="field"><label>Sleep (hr)</label><input id="dSleep" type="number" step="0.1"></div>
+          <div class="field"><label>Energy (1–10)</label><input id="dEnergy" type="number" min="1" max="10"></div>
+          <div class="field"><label>Soreness (1–10)</label><input id="dSoreness" type="number" min="1" max="10"></div>
+          <div class="field"><label>Calories</label><input id="dCalories" type="number"></div>
+          <div class="field"><label>Protein (g)</label><input id="dProtein" type="number" step="0.1"></div>
+          <div class="field"><label>Carbs (g)</label><input id="dCarbs" type="number" step="0.1"></div>
+          <div class="field"><label>Fat (g)</label><input id="dFat" type="number" step="0.1"></div>
+          <div class="field"><label>Steps</label><input id="dSteps" type="number"></div>
+          <div class="field"><label>Active calories</label><input id="dActive" type="number"></div>
+          <div class="field"><label>Total burn (optional)</label><input id="dTotalBurn" type="number"></div>
+          <div class="field"><label>Exercise minutes</label><input id="dExercise" type="number"></div>
+          <div class="field"><label>Distance (mi)</label><input id="dDistance" type="number" step="0.01"></div>
+          <div class="field"><label>Training done?</label><select id="dTraining"><option value=""></option><option>Yes</option><option>No</option><option>Recovery</option></select></div>
+          <div class="field"><label>Day type</label><select id="dDayType"><option value=""></option><option>School + Work</option><option>School</option><option>Work</option><option>Weekend</option><option>Off</option></select></div>
+        </div>
+        <div class="field" style="margin-top:10px"><label>Notes</label><textarea id="dNotes" placeholder="Office lunch, legs felt fresh, poor sleep, watch died, etc."></textarea></div>
+        <div class="actions"><button class="btn primary" onclick="saveDaily()">Save / Update Day</button><button class="btn ghost" onclick="clearDaily()">Clear</button></div>
+        <div id="dailyMsg" class="small" style="margin-top:8px"></div>
+      </div>
+
+      <div id="log-strength" class="logpane" style="display:none">
+        <div class="formgrid threecol">
+          <div class="field"><label>Date</label><input id="sDate" type="date"></div>
+          <div class="field"><label>Split</label><select id="sSplit"><option>Push</option><option>Pull</option><option>Legs</option><option>Full Body</option></select></div>
+          <div class="field"><label>Exercise</label><select id="sExercise"><option>Bench</option><option>Squat</option><option>Deadlift</option><option>Incline Bench</option><option>Overhead Press</option><option>Pull-Up</option><option>Other</option></select></div>
+          <div class="field"><label>Weight (lb)</label><input id="sWeight" type="number" step="0.5"></div>
+          <div class="field"><label>Reps</label><input id="sReps" type="number"></div>
+          <div class="field"><label>Sets</label><input id="sSets" type="number" value="1"></div>
+          <div class="field"><label>RPE</label><input id="sRPE" type="number" step="0.5" min="1" max="10"></div>
+          <div class="field"><label>Bodyweight (optional)</label><input id="sBW" type="number" step="0.1"></div>
+          <div class="field"><label>Bar speed / feel</label><select id="sSpeed"><option value=""></option><option>Explosive</option><option>Fast</option><option>Smooth</option><option>Grindy</option><option>Miss</option></select></div>
+        </div>
+        <div class="field" style="margin-top:10px"><label>Notes</label><textarea id="sNotes" placeholder="Top set, pyramid completed, sticking point, video, etc."></textarea></div>
+        <div class="actions"><button class="btn primary" onclick="saveStrength()">Add Strength Entry</button><button class="btn ghost" onclick="clearStrength()">Clear</button></div>
+        <div id="strengthMsg" class="small" style="margin-top:8px"></div>
+      </div>
+
+      <div id="log-run" class="logpane" style="display:none">
+        <div class="formgrid threecol">
+          <div class="field"><label>Date</label><input id="rDate" type="date"></div>
+          <div class="field"><label>Run type</label><select id="rType"><option>Speed / VO2</option><option>Threshold</option><option>Mile-Specific</option><option>Mile Test</option><option>Easy Aerobic</option><option>Recovery</option><option>Other</option></select></div>
+          <div class="field"><label>Distance (mi)</label><input id="rDistance" type="number" step="0.01"></div>
+          <div class="field"><label>Time (MM:SS or H:MM:SS)</label><input id="rTime" placeholder="15:30"></div>
+          <div class="field"><label>Avg heart rate</label><input id="rHR" type="number"></div>
+          <div class="field"><label>Treadmill speed (mph, optional)</label><input id="rSpeed" type="number" step="0.1"></div>
+        </div>
+        <div class="field" style="margin-top:10px"><label>Notes</label><textarea id="rNotes" placeholder="Completed all reps; took 3:00 before last 0.40; emergency stop interrupted run; etc."></textarea></div>
+        <div class="actions"><button class="btn primary" onclick="saveRun()">Add Run</button><button class="btn ghost" onclick="clearRun()">Clear</button></div>
+        <div id="runMsg" class="small" style="margin-top:8px"></div>
+      </div>
+
+      <div id="log-explosive" class="logpane" style="display:none">
+        <div class="formgrid threecol">
+          <div class="field"><label>Date</label><input id="eDate" type="date"></div>
+          <div class="field"><label>Test</label><select id="eType"><option>Standing Vertical</option><option>Approach Vertical</option><option>Broad Jump</option><option>10-Yard Sprint</option><option>Other</option></select></div>
+          <div class="field"><label>Value</label><input id="eValue" type="number" step="0.01"></div>
+          <div class="field"><label>Unit</label><select id="eUnit"><option>in</option><option>ft</option><option>sec</option><option>cm</option></select></div>
+          <div class="field"><label>Bodyweight (optional)</label><input id="eBW" type="number" step="0.1"></div>
+        </div>
+        <div class="field" style="margin-top:10px"><label>Notes</label><textarea id="eNotes" placeholder="Surface, shoes, approach, fresh/fatigued, etc."></textarea></div>
+        <div class="actions"><button class="btn primary" onclick="saveExplosive()">Add Test</button><button class="btn ghost" onclick="clearExplosive()">Clear</button></div>
+        <div id="explosiveMsg" class="small" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="logbook" class="page">
+    <div class="card">
+      <div class="section-title"><h2>Unified Logbook</h2><span class="pill" id="logCount"></span></div>
+      <div class="tabs" id="logFilters">
+        <button class="active" data-filter="all">All</button><button data-filter="daily">Daily</button><button data-filter="strength">Strength</button><button data-filter="run">Runs</button><button data-filter="jump">Explosive</button>
+      </div>
+      <div class="tablewrap"><table><thead><tr><th>Date</th><th>Type</th><th>Details</th><th>Notes</th><th></th></tr></thead><tbody id="logbookBody"></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="settings" class="page">
+    <div class="grid two">
+      <div class="card">
+        <h2>Goals</h2>
+        <div class="formgrid">
+          <div class="field"><label>Cut goal weight</label><input id="gWeight" type="number" step="0.1"></div>
+          <div class="field"><label>Maintenance low</label><input id="gMaintLow" type="number" step="0.1"></div>
+          <div class="field"><label>Maintenance high</label><input id="gMaintHigh" type="number" step="0.1"></div>
+          <div class="field"><label>Bench goal</label><input id="gBench" type="number"></div>
+          <div class="field"><label>Mile goal (MM:SS)</label><input id="gMile"></div>
+          <div class="field"><label>Protein floor</label><input id="gProtein" type="number"></div>
+          <div class="field"><label>Calories low</label><input id="gCalLow" type="number"></div>
+          <div class="field"><label>Calories high</label><input id="gCalHigh" type="number"></div>
+          <div class="field"><label>Step target</label><input id="gSteps" type="number"></div>
+          <div class="field"><label>Sleep target</label><input id="gSleep" type="number" step="0.1"></div>
+        </div>
+        <div class="actions"><button class="btn primary" onclick="saveGoals()">Save Goals</button></div>
+      </div>
+      <div class="card">
+        <h2>Backup / Restore</h2>
+        <p class="muted">All entries live in your browser. Export a JSON backup regularly so your history is portable.</p>
+        <div class="actions">
+          <button class="btn green" onclick="downloadBackup()">Download Backup JSON</button>
+          <label class="btn ghost" style="display:inline-block">Import Backup<input id="importFile" type="file" accept=".json,application/json" style="display:none" onchange="importBackup(event)"></label>
+          <button class="btn danger" onclick="resetToSeed()">Reset to Starter Data</button>
+        </div>
+        <hr>
+        <h3>Seeded history</h3>
+        <p class="small">Legacy May 2026 data came from <strong>Workout System1.xlsx</strong>: daily check-ins, body-comp, and strength logs. Recent benchmark snapshots from our current tracking were added only where an exact value/date was known. Gaps are left as gaps rather than invented.</p>
+      </div>
+    </div>
+    <div class="grid two" style="margin-top:14px">
+
+      <div class="card">
+        <h2>iPhone App Mode</h2>
+        <p class="muted">Once this folder is hosted over HTTPS, open it in Safari, tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>. It will launch full-screen like an app.</p>
+        <div class="statusrow">
+          <span class="pill good" id="installMode">PWA READY</span>
+          <span class="pill blue">LOCAL-FIRST</span>
+          <span class="pill warn">BACK UP WEEKLY</span>
+        </div>
+        <hr>
+        <h3>Data safety</h3>
+        <p class="small">Your entries stay on this device unless you export or enable cloud sync later. The dashboard will remind you if more than 7 days have passed since your last backup.</p>
+        <div class="insight" id="backupReminder"></div>
+      </div>
+
+      <div class="card">
+        <h2>Cloud Sync — Beta Hook</h2>
+        <p class="muted">The dashboard is now sync-ready. Option B can connect this same data model to a small cloud database without changing how you log workouts.</p>
+        <div class="formgrid" style="grid-template-columns:1fr">
+          <div class="field"><label>Sync endpoint (future)</label><input id="syncEndpoint" placeholder="Not configured"></div>
+          <div class="field"><label>User sync token (future)</label><input id="syncToken" type="password" placeholder="Not configured"></div>
+        </div>
+        <div class="actions"><button class="btn ghost" onclick="testCloudSync()">Test Cloud Sync</button></div>
+        <div id="syncMsg" class="small" style="margin-top:8px">Local mode is active. Cloud sync is not configured yet.</div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h2>Data We Still Need</h2>
+      <table><thead><tr><th>Area</th><th>Best additional data</th><th>What it unlocks</th></tr></thead><tbody>
+        <tr><td>Bench</td><td>Top set / reps / RPE each heavy day</td><td>e1RM trend, relative strength, 405 projection</td></tr>
+        <tr><td>Running</td><td>Type, distance, time, HR each purposeful run</td><td>pace/HR trend, threshold progression, sub-6 readiness</td></tr>
+        <tr><td>Recovery</td><td>Sleep, energy, soreness 4–7 days/week</td><td>real readiness warnings instead of guesswork</td></tr>
+        <tr><td>Explosiveness</td><td>Standing vertical + broad jump baseline</td><td>objective power KPI and fatigue/power trends</td></tr>
+        <tr><td>Physique</td><td>Waist weekly + standardized photos optionally</td><td>recomp/cut progress beyond scale weight</td></tr>
+      </tbody></table>
+    </div>
+  </section>
+
+  <div class="footer">Hybrid Beast Command Center v2 • Self-contained HTML • No external libraries • Local-first data</div>
+</div>
+
+<div id="modalBack" class="modalback" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modalhead"><h2 id="modalTitle">KPI Detail</h2><button class="close" onclick="closeModal()">Close</button></div>
+    <div class="modalmetrics" id="modalMetrics"></div>
+    <canvas id="modalChart" width="1000" height="250"></canvas>
+    <div id="modalInsight" class="insight"></div>
+    <div class="tablewrap" style="margin-top:12px;max-height:330px"><table><thead><tr id="modalHead"></tr></thead><tbody id="modalBody"></tbody></table></div>
+  </div>
+</div>
+
+<script>
+const KEY="hybridBeastCommandCenterV3";
+const starter={
+  version:3,
+  lastBackup:null,
+  goals:{weight:168,maintLow:172,maintHigh:174,bench:405,mileSeconds:359,protein:185,calLow:2000,calHigh:2200,steps:12000,sleep:7.5},
+  benchmarks:{benchLoad:350,benchDate:"2026-10-02",benchPR:405,mileSeconds:384,mileDate:"2026-09-06",weight:179,weightDate:"2026-10-12"},
+  daily:[
+    {date:"2026-05-10",weight:193,sleep:6,energy:8,soreness:2,steps:12618,calories:2198,protein:200,totalBurn:3177,training:"Yes",notes:"Legacy workbook"},
+    {date:"2026-05-11",weight:190.6,sleep:5,energy:10,soreness:1,steps:13572,calories:2379,protein:183,totalBurn:3124,training:"Yes",notes:"Legacy workbook"},
+    {date:"2026-05-12",weight:189.3,sleep:7,energy:9,soreness:1,steps:15064,calories:2296.7,protein:172.3,totalBurn:3049,training:"Yes",notes:"Legacy workbook"},
+    {date:"2026-05-13",weight:190,sleep:7,energy:9,soreness:1,steps:16581,calories:2138.3,protein:164.9,totalBurn:3391,training:"Yes",notes:"Legacy workbook"},
+    {date:"2026-05-14",weight:188.2,sleep:7.5,energy:10,soreness:1,steps:15522,calories:2103.8,protein:160.6,totalBurn:3196,training:"Yes",notes:"Legacy workbook"},
+    {date:"2026-05-15",weight:187.9,sleep:7,energy:10,soreness:1,steps:15171,calories:2107,protein:203,totalBurn:3361,training:"Yes",notes:"Legacy workbook"},
+    {date:"2026-05-16",weight:187.3,sleep:6,energy:10,soreness:1,steps:16585,calories:1897,protein:188.4,totalBurn:3195,training:"Yes",notes:"Legacy workbook"},
+    {date:"2026-05-17",weight:187,sleep:6.5,energy:10,soreness:1,steps:13290,calories:1770,protein:181.2,totalBurn:2961,training:"Yes",notes:"Legacy workbook"},
+    {date:"2026-05-18",weight:186.8,sleep:6.5,energy:10,soreness:1,steps:18636,totalBurn:3606,training:"Yes",notes:"Legacy workbook; nutrition blank"},
+    {date:"2026-05-19",weight:187,sleep:6,energy:9,soreness:1,steps:14962,calories:1664,protein:176,totalBurn:2775,training:"Yes",notes:"Legacy workbook"},
+    {date:"2026-09-09",weight:172.6,notes:"Known morning weigh-in"},
+    {date:"2026-09-10",weight:172.2,notes:"Known morning weigh-in"},
+    {date:"2026-10-12",weight:179,steps:16051,active:1210,totalBurn:2907,exercise:80,distance:9.38,notes:"Known reset weigh-in; activity snapshot"},
+    {date:"2026-10-13",steps:19091,active:1277,totalBurn:3057,exercise:92,distance:10.50,notes:"Activity snapshot; nutrition total not backfilled"},
+    {date:"2026-10-14",steps:17849,active:1140,totalBurn:2809,exercise:71,distance:9.71,notes:"Activity snapshot; team lunch made nutrition estimate uncertain"}
+  ],
+  strength:[
+    {id:"L1",date:"2026-05-04",split:"Push",exercise:"Bench",weight:345,reps:2,sets:1,rpe:8,speed:"Smooth",notes:"No struggle • legacy workbook"},
+    {id:"L2",date:"2026-05-05",split:"Pull",exercise:"Deadlift",weight:475,reps:2,sets:1,rpe:8,speed:"Explosive",notes:"Fast • legacy workbook"},
+    {id:"L3",date:"2026-05-06",split:"Legs",exercise:"Squat",weight:365,reps:4,sets:2,rpe:8,speed:"Explosive",notes:"Smooth/strong • legacy workbook"},
+    {id:"L4",date:"2026-05-06",split:"Legs",exercise:"Squat",weight:385,reps:3,sets:1,rpe:8,speed:"Explosive",notes:"Could've done more • legacy workbook"}
+  ],
+  runs:[
+    {id:"R1",date:"2026-09-06",type:"Mile Test",distance:1,timeSec:384,avgHR:160,notes:"6:24 mile benchmark after earlier 7:45 mile"},
+    {id:"R2",date:"2026-09-18",type:"Mile Test",distance:1,timeSec:385,avgHR:171,notes:"6:25 mile after work"},
+    {id:"R3",date:"2026-09-20",type:"Threshold",distance:3.01,timeSec:1430,avgHR:162,notes:"23:50 total • 7:53/mi"},
+    {id:"R4",date:"2026-09-22",type:"Threshold",distance:2.02,timeSec:930,avgHR:160,notes:"15:30 total • negative split"},
+    {id:"R5",date:"2026-09-30",type:"Threshold",distance:2,timeSec:895,notes:"Compressed session after audit exam • 14:55"},
+    {id:"R6",date:"2026-10-04",type:"Easy Aerobic",distance:5,timeSec:2600,avgHR:142,notes:"43:20 • 8:41/mi aerobic-base run"},
+    {id:"R7",date:"2026-10-06",type:"Threshold",distance:1.98,timeSec:945,notes:"Interrupted by emergency stop; HR reading unreliable"}
+  ],
+  explosive:[]
+};
+function clone(x){return JSON.parse(JSON.stringify(x))}
+function loadState(){
+  try{
+    const v=JSON.parse(localStorage.getItem(KEY));
+    if(v&&v.version===3)return v;
+  }catch(e){}
+  return clone(starter);
+}
+let state=loadState();
+["dailyMsg","dWeight","dWaist","dSleep","dEnergy","dSoreness","dCalories","dProtein","dCarbs","dFat","dSteps","dActive","dTotalBurn","dExercise","dDistance","dTraining","dDayType","dNotes",
+"strengthMsg","sDate","sWeight","sReps","sSplit","sExercise","sSets","sRPE","sBW","sSpeed","sNotes",
+"runMsg","rDate","rDistance","rTime","rType","rHR","rSpeed","rNotes",
+"explosiveMsg","eDate","eValue","eType","eUnit","eBW","eNotes",
+"gWeight","gMaintLow","gMaintHigh","gBench","gMile","gProtein","gCalLow","gCalHigh","gSteps","gSleep"
+].forEach(id=>globalThis[id]=document.getElementById(id));
+function persist(){localStorage.setItem(KEY,JSON.stringify(state))}
+function dateVal(s){return new Date(s+"T12:00:00").getTime()}
+function sortDate(a,b){return dateVal(a.date)-dateVal(b.date)}
+function fmtDate(s){if(!s)return"—";return new Date(s+"T12:00:00").toLocaleDateString(undefined,{month:"short",day:"numeric",year:"2-digit"})}
+function n(v,d=1){return v===undefined||v===null||v===""?null:Number(v)}
+function mean(arr){const x=arr.filter(v=>Number.isFinite(v));return x.length?x.reduce((a,b)=>a+b,0)/x.length:null}
+function lastWith(arr,key){return [...arr].sort(sortDate).reverse().find(x=>Number.isFinite(Number(x[key])))}
+function lastNWith(arr,key,count=7){return [...arr].sort(sortDate).filter(x=>Number.isFinite(Number(x[key]))).slice(-count)}
+function formatTime(sec){if(!Number.isFinite(sec))return"—";sec=Math.round(sec);const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;return h?`${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`:`${m}:${String(s).padStart(2,"0")}`}
+function parseTime(str){if(!str)return null;const p=str.trim().split(":").map(Number);if(p.some(x=>!Number.isFinite(x)))return null;if(p.length===2)return p[0]*60+p[1];if(p.length===3)return p[0]*3600+p[1]*60+p[2];return null}
+function e1rm(w,r){return w&&r?w*(1+r/30):null}
+function readiness(d){if(!d)return null;const sl=n(d.sleep),en=n(d.energy),so=n(d.soreness);if(sl===null||en===null||so===null)return null;return Math.max(0,Math.min(10,(sl/8)*3+en*.5+(10-so)*.2))}
+function readyStatus(d){const sc=readiness(d);if(sc===null)return"NEED DATA";if(n(d.energy)<=5||n(d.soreness)>=7||n(d.sleep)<5)return"FATIGUED";if(n(d.energy)>=8&&n(d.soreness)<=4&&n(d.sleep)>=7)return"READY";return"MODERATE"}
+function todayISO(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+
+function drawLine(canvas,points,{lowerBetter=false,suffix="",goal=null}={}){
+  const ctx=canvas.getContext("2d"),w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);ctx.fillStyle="#0d1115";ctx.fillRect(0,0,w,h);
+  const pts=points.filter(p=>Number.isFinite(p.value));
+  if(!pts.length){ctx.fillStyle="#71808d";ctx.font="16px system-ui";ctx.fillText("No data yet.",28,38);return}
+  const vals=pts.map(p=>p.value);let min=Math.min(...vals),max=Math.max(...vals);if(goal!==null){min=Math.min(min,goal);max=Math.max(max,goal)}
+  if(max===min){max+=1;min-=1}else{const pad=(max-min)*.14;max+=pad;min-=pad}
+  const px=48,py=36;ctx.strokeStyle="#26313a";ctx.lineWidth=1;
+  for(let i=0;i<4;i++){const y=py+(h-py*2)*i/3;ctx.beginPath();ctx.moveTo(px,y);ctx.lineTo(w-px,y);ctx.stroke()}
+  if(goal!==null){const y=h-py-(goal-min)/(max-min)*(h-py*2);ctx.strokeStyle="#b7ff39";ctx.setLineDash([8,6]);ctx.beginPath();ctx.moveTo(px,y);ctx.lineTo(w-px,y);ctx.stroke();ctx.setLineDash([])}
+  ctx.strokeStyle="#d71920";ctx.lineWidth=4;ctx.beginPath();
+  pts.forEach((p,i)=>{const x=px+(w-2*px)*(pts.length===1?.5:i/(pts.length-1));const y=h-py-(p.value-min)/(max-min)*(h-2*py);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();
+  pts.forEach((p,i)=>{const x=px+(w-2*px)*(pts.length===1?.5:i/(pts.length-1));const y=h-py-(p.value-min)/(max-min)*(h-2*py);ctx.fillStyle="#b7ff39";ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill();ctx.font="11px system-ui";ctx.fillStyle="#98a3ae";ctx.fillText(p.label,x-17,h-12);ctx.fillStyle="#f7f9fb";ctx.fillText(`${p.display??p.value}${suffix}`,x-14,y-10)})
+}
+
+function renderDashboard(){
+  const weights=lastNWith(state.daily,"weight",7), latestW=weights.at(-1), wavg=mean(weights.map(x=>n(x.weight)));
+  document.getElementById("kWeight").textContent=latestW?`${n(latestW.weight).toFixed(1)} lb`:`${state.benchmarks.weight} lb`;
+  let prevW=weights.length>1?n(weights[0].weight):null,delta=latestW&&prevW?n(latestW.weight)-prevW:null;
+  document.getElementById("kWeightSub").textContent=wavg?`7-entry avg ${wavg.toFixed(1)} • ${delta===null?"trend building":`${delta>0?"+":""}${delta.toFixed(1)} vs earliest`}`:"Log morning weights";
+  const denom=Math.max(.1,(state.benchmarks.weight-state.goals.weight)),prog=Math.max(0,Math.min(100,(state.benchmarks.weight-(latestW?n(latestW.weight):state.benchmarks.weight))/denom*100));
+  document.getElementById("kWeightBar").style.width=`${prog}%`;
+  document.getElementById("avgWeightPill").textContent=wavg?`Avg ${wavg.toFixed(1)} lb`:"Need weigh-ins";
+  drawLine(document.getElementById("weightChart"),weights.map(x=>({value:n(x.weight),label:fmtDate(x.date).replace(/,.*$/,""),display:n(x.weight).toFixed(1)})),{goal:state.goals.weight});
+
+  const benchEntries=state.strength.filter(x=>x.exercise==="Bench").sort(sortDate),lastBench=benchEntries.at(-1),loggedLoad=lastBench?n(lastBench.weight):null,currentBench=Math.max(state.benchmarks.benchLoad||0,loggedLoad||0);
+  document.getElementById("kBench").textContent=`${currentBench} lb`;
+  document.getElementById("kBenchSub").textContent=lastBench?`Latest logged ${lastBench.weight}×${lastBench.reps} • goal ${state.goals.bench}`:`Known recent load • goal ${state.goals.bench}`;
+  document.getElementById("kBenchBar").style.width=`${Math.min(100,currentBench/state.goals.bench*100)}%`;
+
+  const mileTests=state.runs.filter(x=>x.type==="Mile Test"&&n(x.timeSec)).sort(sortDate);const bestMile=mileTests.length?Math.min(...mileTests.map(x=>n(x.timeSec))):state.benchmarks.mileSeconds;
+  document.getElementById("kMile").textContent=formatTime(bestMile);document.getElementById("kMileSub").textContent=`${bestMile-state.goals.mileSeconds}s from ${formatTime(state.goals.mileSeconds)}`;
+  const start=420;document.getElementById("kMileBar").style.width=`${Math.max(0,Math.min(100,(start-bestMile)/(start-state.goals.mileSeconds)*100))}%`;
+  document.getElementById("mileBestDetail").textContent=formatTime(bestMile);document.getElementById("mileGapDetail").textContent=`${bestMile-state.goals.mileSeconds} seconds`;
+
+  const readyDays=lastNWith(state.daily,"sleep",1),rd=readyDays.at(-1),score=readiness(rd);
+  document.getElementById("kReady").textContent=score===null?"—":`${score.toFixed(1)}/10`;document.getElementById("kReadySub").textContent=rd?`${readyStatus(rd)} • ${fmtDate(rd.date)}`:"Log sleep + energy + soreness";document.getElementById("kReadyBar").style.width=`${score===null?0:score*10}%`;
+
+  const recentNutrition=[...state.daily].sort(sortDate).filter(x=>n(x.calories)!==null||n(x.protein)!==null).slice(-7),avgCal=mean(recentNutrition.map(x=>n(x.calories))),avgPro=mean(recentNutrition.map(x=>n(x.protein)));
+  const pComp=recentNutrition.length?recentNutrition.filter(x=>n(x.protein)!==null&&n(x.protein)>=state.goals.protein).length/recentNutrition.length*100:0;
+  document.getElementById("kNutrition").textContent=avgCal?`${Math.round(avgCal)} kcal`:"—";document.getElementById("kNutritionSub").textContent=avgPro?`${Math.round(avgPro)}g protein avg • ${Math.round(pComp)}% floor hit`:"Log calories + protein";document.getElementById("kNutritionBar").style.width=`${Math.min(100,pComp)}%`;
+
+  const recentSteps=lastNWith(state.daily,"steps",7),avgSteps=mean(recentSteps.map(x=>n(x.steps)));document.getElementById("kActivity").textContent=avgSteps?Math.round(avgSteps).toLocaleString():"—";document.getElementById("kActivitySub").textContent=avgSteps?`7-entry step avg • target ${state.goals.steps.toLocaleString()}`:"Log steps";document.getElementById("kActivityBar").style.width=`${avgSteps?Math.min(100,avgSteps/state.goals.steps*100):0}%`;
+
+  const rec=lastNWith(state.daily,"sleep",7),avgSleep=mean(rec.map(x=>n(x.sleep))),avgEnergy=mean(rec.map(x=>n(x.energy)));document.getElementById("kRecovery").textContent=avgSleep?`${avgSleep.toFixed(1)} hr`:"—";document.getElementById("kRecoverySub").textContent=avgEnergy?`Energy ${avgEnergy.toFixed(1)}/10 • sleep target ${state.goals.sleep}`:"Log recovery";document.getElementById("kRecoveryBar").style.width=`${avgSleep?Math.min(100,avgSleep/state.goals.sleep*100):0}%`;
+
+  const ex=[...state.explosive].sort(sortDate).at(-1);document.getElementById("kExplosive").textContent=ex?`${ex.value} ${ex.unit}`:"BASELINE";document.getElementById("kExplosiveSub").textContent=ex?`${ex.type} • ${fmtDate(ex.date)}`:"Log vertical, broad jump or 10 yd";document.getElementById("kExplosiveBar").style.width=ex?"55%":"8%";
+
+  const today=state.daily.find(x=>x.date===todayISO());document.getElementById("todayDatePill").textContent=fmtDate(todayISO());
+  document.getElementById("todayWeight").textContent=today&&n(today.weight)!==null?`${n(today.weight).toFixed(1)} lb`:"—";document.getElementById("todayCalories").textContent=today&&n(today.calories)!==null?Math.round(n(today.calories)).toLocaleString():"—";document.getElementById("todayProtein").textContent=today&&n(today.protein)!==null?`${Math.round(n(today.protein))} g`:"—";document.getElementById("todaySteps").textContent=today&&n(today.steps)!==null?n(today.steps).toLocaleString():"—";
+  let tmsg="No daily check-in yet. Use Log Today to start the day.";
+  if(today){const parts=[];if(n(today.protein)!==null)parts.push(n(today.protein)>=state.goals.protein?"protein floor hit":"protein still needs work");if(n(today.calories)!==null)parts.push(n(today.calories)>=state.goals.calLow&&n(today.calories)<=state.goals.calHigh?"calories in reset range":n(today.calories)>state.goals.calHigh?"calories above reset range":"calories still low");if(n(today.steps)!==null)parts.push(n(today.steps)>=state.goals.steps?"activity target hit":"steps still building");tmsg=parts.length?`<strong>Today:</strong> ${parts.join(" • ")}.`:"Daily entry saved; add nutrition/activity as the day develops."}
+  document.getElementById("todayInsight").innerHTML=tmsg;
+  renderRecent();
+}
+function combinedLogs(){
+  const out=[];
+  state.daily.forEach(x=>out.push({date:x.date,type:"daily",summary:[n(x.weight)!==null?`${x.weight} lb`:null,n(x.calories)!==null?`${Math.round(x.calories)} kcal`:null,n(x.protein)!==null?`${Math.round(x.protein)}g P`:null,n(x.steps)!==null?`${x.steps.toLocaleString()} steps`:null].filter(Boolean).join(" • ")||"Daily check-in",notes:x.notes||"",ref:x.date}));
+  state.strength.forEach(x=>out.push({date:x.date,type:"strength",summary:`${x.exercise}: ${x.weight}×${x.reps}${x.sets>1?` × ${x.sets} sets`:""}${x.rpe?` • RPE ${x.rpe}`:""}`,notes:x.notes||"",ref:x.id}));
+  state.runs.forEach(x=>out.push({date:x.date,type:"run",summary:`${x.type}: ${x.distance} mi • ${formatTime(x.timeSec)} • ${formatTime(x.timeSec/x.distance)}/mi`,notes:x.notes||"",ref:x.id}));
+  state.explosive.forEach(x=>out.push({date:x.date,type:"jump",summary:`${x.type}: ${x.value} ${x.unit}`,notes:x.notes||"",ref:x.id}));
+  return out.sort((a,b)=>dateVal(b.date)-dateVal(a.date));
+}
+function renderRecent(){const body=document.getElementById("recentLog"),logs=combinedLogs().slice(0,12);body.innerHTML=logs.map(x=>`<tr><td>${fmtDate(x.date)}</td><td><span class="logtype ${x.type}">${x.type.toUpperCase()}</span></td><td>${x.summary}</td></tr>`).join("")||`<tr><td colspan="3" class="empty">No logs yet.</td></tr>`}
+let logFilter="all";
+function renderLogbook(){
+  const all=combinedLogs(),logs=logFilter==="all"?all:all.filter(x=>x.type===logFilter);document.getElementById("logCount").textContent=`${logs.length} entries`;
+  document.getElementById("logbookBody").innerHTML=logs.map(x=>`<tr><td>${fmtDate(x.date)}</td><td><span class="logtype ${x.type}">${x.type.toUpperCase()}</span></td><td>${x.summary}</td><td>${x.notes||""}</td><td><button class="btn danger" style="padding:5px 8px" onclick="deleteLog('${x.type}','${x.ref}')">Delete</button></td></tr>`).join("")||`<tr><td colspan="5" class="empty">No matching entries.</td></tr>`
+}
+function deleteLog(type,ref){
+  if(!confirm("Delete this entry?"))return;
+  if(type==="daily")state.daily=state.daily.filter(x=>x.date!==ref);
+  if(type==="strength")state.strength=state.strength.filter(x=>x.id!==ref);
+  if(type==="run")state.runs=state.runs.filter(x=>x.id!==ref);
+  if(type==="jump")state.explosive=state.explosive.filter(x=>x.id!==ref);
+  persist();refresh()
+}
+
+function openKPI(type){
+  const title=document.getElementById("modalTitle"),metrics=document.getElementById("modalMetrics"),ins=document.getElementById("modalInsight"),head=document.getElementById("modalHead"),body=document.getElementById("modalBody"),chart=document.getElementById("modalChart");
+  let points=[],rows=[],met=[],insight="",headers=[];
+  if(type==="weight"){
+    title.textContent="Bodyweight & Physique Trend";const ws=[...state.daily].filter(x=>n(x.weight)!==null).sort(sortDate),recent=ws.slice(-7),avg=mean(recent.map(x=>n(x.weight))),cur=ws.at(-1),prev=ws.length>1?ws.at(-2):null;
+    met=[["Current",cur?`${n(cur.weight).toFixed(1)} lb`:"—"],["7-entry avg",avg?`${avg.toFixed(1)} lb`:"—"],["To 174",cur?`${(n(cur.weight)-174).toFixed(1)} lb`:"—"],["To 168",cur?`${(n(cur.weight)-168).toFixed(1)} lb`:"—"]];
+    points=ws.slice(-14).map(x=>({value:n(x.weight),label:fmtDate(x.date).split(",")[0],display:n(x.weight).toFixed(1)}));headers=["Date","Weight","Waist","Notes"];rows=ws.slice().reverse().slice(0,16).map(x=>[fmtDate(x.date),`${x.weight} lb`,n(x.waist)!==null?`${x.waist}"`:"—",x.notes||""]);
+    insight=cur&&prev?`Latest change is ${(n(cur.weight)-n(prev.weight)>=0?"+":"")}${(n(cur.weight)-n(prev.weight)).toFixed(1)} lb versus the prior logged weigh-in. Use the rolling average before changing calories; restaurant sodium and carb intake can move single-day scale weight fast.`:"Keep logging morning weights. The rolling trend becomes more valuable than any one weigh-in.";
+    drawLine(chart,points,{goal:state.goals.weight});
+  }else if(type==="bench"){
+    title.textContent="Bench Strength — Road to 405";const be=state.strength.filter(x=>x.exercise==="Bench").sort(sortDate);points=be.map(x=>({value:e1rm(n(x.weight),n(x.reps)),label:fmtDate(x.date).split(",")[0],display:Math.round(e1rm(n(x.weight),n(x.reps)))}));const best=points.length?Math.max(...points.map(x=>x.value)):null,latest=be.at(-1),bw=lastWith(state.daily,"weight");
+    met=[["Known recent load",`${state.benchmarks.benchLoad} lb`],["Best logged e1RM",best?`${Math.round(best)} lb`:"—"],["Historical PR",`${state.benchmarks.benchPR} lb`],["Relative load",bw?`${(state.benchmarks.benchLoad/n(bw.weight)).toFixed(2)}× BW`:"—"]];
+    headers=["Date","Top set","RPE","e1RM"];rows=be.slice().reverse().map(x=>[fmtDate(x.date),`${x.weight}×${x.reps}`,x.rpe||"—",`${Math.round(e1rm(n(x.weight),n(x.reps)))} lb`]);
+    insight=`The 350 lb recent benchmark is kept as a known load because rep count was not backfilled from the video. Going forward, log top weight + reps + RPE on heavy push days and this panel will build a true e1RM trend toward 405.`;
+    drawLine(chart,points,{goal:state.goals.bench});
+  }else if(type==="mile"){
+    title.textContent="Mile & Running Performance";const mt=state.runs.filter(x=>x.type==="Mile Test").sort(sortDate),best=mt.length?Math.min(...mt.map(x=>n(x.timeSec))):state.benchmarks.mileSeconds;points=mt.map(x=>({value:n(x.timeSec),label:fmtDate(x.date).split(",")[0],display:formatTime(n(x.timeSec))}));
+    met=[["Best mile",formatTime(best)],["Goal",formatTime(state.goals.mileSeconds)],["Gap",`${best-state.goals.mileSeconds} sec`],["Goal speed",`${(3600/state.goals.mileSeconds).toFixed(2)} mph`]];
+    headers=["Date","Type","Distance","Time / Pace"];rows=state.runs.slice().sort((a,b)=>dateVal(b.date)-dateVal(a.date)).slice(0,16).map(x=>[fmtDate(x.date),x.type,`${x.distance} mi`,`${formatTime(x.timeSec)} • ${formatTime(x.timeSec/x.distance)}/mi`]);
+    insight=`Your best recorded mile is ${formatTime(best)}. The aerobic base has improved enough that the next gains should come from specific speed endurance: longer exposure around 10.0 mph, not repeatedly testing the mile.`;
+    drawLine(chart,points,{goal:state.goals.mileSeconds});
+  }else if(type==="readiness"||type==="recovery"){
+    title.textContent=type==="readiness"?"Readiness Score":"Recovery Trend";const ds=state.daily.filter(x=>readiness(x)!==null).sort(sortDate),recent=ds.slice(-7),scores=recent.map(readiness),avg=mean(scores),latest=ds.at(-1);
+    met=[["Latest score",latest?`${readiness(latest).toFixed(1)}/10`:"—"],["Status",latest?readyStatus(latest):"—"],["7-entry avg",avg?`${avg.toFixed(1)}/10`:"—"],["Sleep avg",`${mean(recent.map(x=>n(x.sleep)))?.toFixed(1)??"—"} hr`]];
+    points=ds.slice(-14).map(x=>({value:readiness(x),label:fmtDate(x.date).split(",")[0],display:readiness(x).toFixed(1)}));headers=["Date","Sleep","Energy","Soreness","Score"];rows=ds.slice().reverse().slice(0,16).map(x=>[fmtDate(x.date),`${x.sleep} hr`,`${x.energy}/10`,`${x.soreness}/10`,readiness(x).toFixed(1)]);
+    insight=latest?`${readyStatus(latest)}. This score uses the same core logic as the old workbook: sleep, energy and soreness. It is a load-management flag, not a medical metric.`:"We need consistent sleep, energy and soreness entries to make recovery coaching useful.";
+    drawLine(chart,points,{goal:10});
+  }else if(type==="nutrition"){
+    title.textContent="Nutrition Consistency";const ds=state.daily.filter(x=>n(x.calories)!==null||n(x.protein)!==null).sort(sortDate),recent=ds.slice(-7),ac=mean(recent.map(x=>n(x.calories))),ap=mean(recent.map(x=>n(x.protein))),hit=recent.filter(x=>n(x.protein)!==null&&n(x.protein)>=state.goals.protein).length;
+    met=[["Avg calories",ac?Math.round(ac):"—"],["Avg protein",ap?`${Math.round(ap)} g`:"—"],["Protein floor",`${hit}/${recent.length||0} days`],["Reset range",`${state.goals.calLow}–${state.goals.calHigh}`]];
+    points=recent.map(x=>({value:n(x.calories),label:fmtDate(x.date).split(",")[0],display:n(x.calories)?Math.round(n(x.calories)):""}));headers=["Date","Calories","Protein","Notes"];rows=ds.slice().reverse().slice(0,16).map(x=>[fmtDate(x.date),n(x.calories)!==null?Math.round(x.calories):"—",n(x.protein)!==null?`${Math.round(x.protein)}g`:"—",x.notes||""]);
+    insight=`The biggest value here is adherence, not precision theater. Team lunches and restaurant meals can be estimated; the key is returning to normal tracking at the next meal and watching the 7-day average.`;
+    drawLine(chart,points,{goal:(state.goals.calLow+state.goals.calHigh)/2});
+  }else if(type==="activity"){
+    title.textContent="Activity Load";const ds=state.daily.filter(x=>n(x.steps)!==null).sort(sortDate),recent=ds.slice(-7),avg=mean(recent.map(x=>n(x.steps))),mx=recent.length?Math.max(...recent.map(x=>n(x.steps))):null;
+    met=[["7-entry avg",avg?Math.round(avg).toLocaleString():"—"],["Target",state.goals.steps.toLocaleString()],["High day",mx?mx.toLocaleString():"—"],["Logged days",ds.length]];
+    points=recent.map(x=>({value:n(x.steps),label:fmtDate(x.date).split(",")[0],display:(n(x.steps)/1000).toFixed(1)+"k"}));headers=["Date","Steps","Active cal","Total burn","Distance"];rows=ds.slice().reverse().slice(0,16).map(x=>[fmtDate(x.date),x.steps.toLocaleString(),n(x.active)!==null?Math.round(x.active):"—",n(x.totalBurn)!==null?Math.round(x.totalBurn):"—",n(x.distance)!==null?`${x.distance} mi`:"—"]);
+    insight=`Your activity is frequently high enough that more cardio is not automatically better. Use steps/distance to understand workload; treat watch calorie burn as context, not permission to eat back an exact number.`;
+    drawLine(chart,points,{goal:state.goals.steps});
+  }else if(type==="explosive"){
+    title.textContent="Explosiveness";const ex=[...state.explosive].sort(sortDate),latest=ex.at(-1);met=[["Latest",latest?`${latest.value} ${latest.unit}`:"No baseline"],["Test",latest?latest.type:"—"],["Entries",ex.length],["Priority","Quality > fatigue"]];
+    points=ex.filter(x=>x.type===latest?.type&&x.unit===latest?.unit).map(x=>({value:n(x.value),label:fmtDate(x.date).split(",")[0],display:x.value}));headers=["Date","Test","Value","Bodyweight"];rows=ex.slice().reverse().map(x=>[fmtDate(x.date),x.type,`${x.value} ${x.unit}`,n(x.bodyweight)!==null?`${x.bodyweight} lb`:"—"]);
+    insight=latest?`Keep the test standardized: same surface, shoes, warm-up and fresh-enough legs. That lets us tell whether power is actually improving.`:"This KPI still needs an objective baseline. Start with standing vertical and broad jump; 10-yard sprint can come later.";
+    drawLine(chart,points,{});
+  }
+  metrics.innerHTML=met.map(x=>`<div class="modalmetric"><div class="l">${x[0]}</div><div class="v">${x[1]}</div></div>`).join("");
+  ins.innerHTML=`<strong>Coach insight:</strong> ${insight}`;head.innerHTML=headers.map(x=>`<th>${x}</th>`).join("");body.innerHTML=rows.length?rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join(""):`<tr><td colspan="${headers.length||1}" class="empty">No data yet.</td></tr>`;
+  document.getElementById("modalBack").classList.add("open");
+}
+function closeModal(){document.getElementById("modalBack").classList.remove("open")}
+
+function saveDaily(){
+  const date=document.getElementById("dDate").value;if(!date){dailyMsg.textContent="Date is required.";return}
+  const rec={date,weight:n(dWeight.value),waist:n(dWaist.value),sleep:n(dSleep.value),energy:n(dEnergy.value),soreness:n(dSoreness.value),calories:n(dCalories.value),protein:n(dProtein.value),carbs:n(dCarbs.value),fat:n(dFat.value),steps:n(dSteps.value),active:n(dActive.value),totalBurn:n(dTotalBurn.value),exercise:n(dExercise.value),distance:n(dDistance.value),training:dTraining.value,dayType:dDayType.value,notes:dNotes.value.trim()};
+  Object.keys(rec).forEach(k=>rec[k]===null&&delete rec[k]);const i=state.daily.findIndex(x=>x.date===date);if(i>=0)state.daily[i]={...state.daily[i],...rec};else state.daily.push(rec);state.daily.sort(sortDate);persist();dailyMsg.textContent="Day saved. Stack the next one.";refresh()
+}
+function clearDaily(){["dWeight","dWaist","dSleep","dEnergy","dSoreness","dCalories","dProtein","dCarbs","dFat","dSteps","dActive","dTotalBurn","dExercise","dDistance","dNotes"].forEach(id=>document.getElementById(id).value="");dTraining.value="";dDayType.value=""}
+function uid(p){return p+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function saveStrength(){if(!sDate.value||!sWeight.value||!sReps.value){strengthMsg.textContent="Date, weight and reps are required.";return}state.strength.push({id:uid("S"),date:sDate.value,split:sSplit.value,exercise:sExercise.value,weight:n(sWeight.value),reps:n(sReps.value),sets:n(sSets.value)||1,rpe:n(sRPE.value),bodyweight:n(sBW.value),speed:sSpeed.value,notes:sNotes.value.trim()});state.strength.sort(sortDate);persist();strengthMsg.textContent=`Saved. e1RM ≈ ${Math.round(e1rm(n(sWeight.value),n(sReps.value)))} lb.`;clearStrength(false);refresh()}
+function clearStrength(clearDate=true){["sWeight","sReps","sRPE","sBW","sNotes"].forEach(id=>document.getElementById(id).value="");sSets.value=1;sSpeed.value=""}
+function saveRun(){const sec=parseTime(rTime.value);if(!rDate.value||!rDistance.value||!sec){runMsg.textContent="Date, distance and valid time are required.";return}state.runs.push({id:uid("R"),date:rDate.value,type:rType.value,distance:n(rDistance.value),timeSec:sec,avgHR:n(rHR.value),speed:n(rSpeed.value),notes:rNotes.value.trim()});state.runs.sort(sortDate);persist();runMsg.textContent=`Saved. Avg pace ${formatTime(sec/n(rDistance.value))}/mi.`;clearRun(false);refresh()}
+function clearRun(clearDate=true){["rDistance","rTime","rHR","rSpeed","rNotes"].forEach(id=>document.getElementById(id).value="")}
+function saveExplosive(){if(!eDate.value||!eValue.value){explosiveMsg.textContent="Date and value are required.";return}state.explosive.push({id:uid("E"),date:eDate.value,type:eType.value,value:n(eValue.value),unit:eUnit.value,bodyweight:n(eBW.value),notes:eNotes.value.trim()});state.explosive.sort(sortDate);persist();explosiveMsg.textContent="Explosive test saved.";clearExplosive(false);refresh()}
+function clearExplosive(clearDate=true){["eValue","eBW","eNotes"].forEach(id=>document.getElementById(id).value="")}
+
+function loadGoals(){gWeight.value=state.goals.weight;gMaintLow.value=state.goals.maintLow;gMaintHigh.value=state.goals.maintHigh;gBench.value=state.goals.bench;gMile.value=formatTime(state.goals.mileSeconds);gProtein.value=state.goals.protein;gCalLow.value=state.goals.calLow;gCalHigh.value=state.goals.calHigh;gSteps.value=state.goals.steps;gSleep.value=state.goals.sleep}
+function saveGoals(){const ms=parseTime(gMile.value);state.goals={weight:n(gWeight.value),maintLow:n(gMaintLow.value),maintHigh:n(gMaintHigh.value),bench:n(gBench.value),mileSeconds:ms||359,protein:n(gProtein.value),calLow:n(gCalLow.value),calHigh:n(gCalHigh.value),steps:n(gSteps.value),sleep:n(gSleep.value)};persist();refresh();alert("Goals saved.")}
+function downloadBackup(){
+      state.lastBackup=new Date().toISOString();persist();
+      const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");
+      a.href=URL.createObjectURL(blob);a.download=`Hybrid_Beast_Backup_${todayISO()}.json`;a.click();
+      setTimeout(()=>URL.revokeObjectURL(a.href),500);renderBackupReminder();
+    }
+function importBackup(ev){const f=ev.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const x=JSON.parse(rd.result);if(!x.daily||!x.strength||!x.runs)throw new Error();state=x;state.version=3;persist();refresh();alert("Backup imported.")}catch(e){alert("That file is not a valid Hybrid Beast backup.")}};rd.readAsText(f)}
+function resetToSeed(){if(!confirm("Reset all dashboard data back to the starter/legacy dataset? This replaces current browser data."))return;state=clone(starter);persist();refresh()}
+
+function showPage(id){document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===id));document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===id));if(id==="logbook")renderLogbook()}
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+document.querySelectorAll(".tabs button[data-logtab]").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button[data-logtab]").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".logpane").forEach(x=>x.style.display="none");document.getElementById("log-"+b.dataset.logtab).style.display="block"});
+document.querySelectorAll("#logFilters button").forEach(b=>b.onclick=()=>{document.querySelectorAll("#logFilters button").forEach(x=>x.classList.remove("active"));b.classList.add("active");logFilter=b.dataset.filter;renderLogbook()});
+function refresh(){renderDashboard();renderLogbook();loadGoals()}
+function initDates(){const t=todayISO();["dDate","sDate","rDate","eDate"].forEach(id=>document.getElementById(id).value=t)}
+initDates();refresh();
+
+function renderBackupReminder(){
+  const el=document.getElementById("backupReminder"); if(!el)return;
+  if(!state.lastBackup){el.innerHTML="<strong>Backup due:</strong> No backup has been recorded yet. Export a JSON backup after you begin logging.";return}
+  const days=(Date.now()-new Date(state.lastBackup).getTime())/86400000;
+  el.innerHTML=days>=7?`<strong>Backup due:</strong> ${Math.floor(days)} days since the last backup.`:`<strong>Backup current:</strong> Last exported ${Math.floor(days)} day${Math.floor(days)===1?"":"s"} ago.`;
+}
+async function testCloudSync(){
+  const ep=document.getElementById("syncEndpoint")?.value.trim();
+  const token=document.getElementById("syncToken")?.value.trim();
+  const msg=document.getElementById("syncMsg");
+  if(!ep){msg.textContent="No endpoint configured. Option B still needs a cloud backend.";return}
+  try{
+    const r=await fetch(ep,{method:"GET",headers:token?{"Authorization":"Bearer "+token}:{}});
+    msg.textContent=r.ok?"Cloud endpoint reached successfully.":"Endpoint responded, but authentication/configuration still needs work.";
+  }catch(e){msg.textContent="Could not reach the endpoint from this device."}
+}
+window.addEventListener("load",()=>{
+  renderBackupReminder();
+  if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+    navigator.serviceWorker.register("./sw.js").catch(()=>{});
+  }
+  if(window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone===true){
+    const x=document.getElementById("installMode"); if(x)x.textContent="INSTALLED";
+  }
+});
+
+</script>
+</body>
+</html>
